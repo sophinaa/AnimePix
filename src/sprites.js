@@ -1,9 +1,9 @@
-// Character atlas: display regions from the supplied sheets without changing the artwork.
+// Character atlas: transparent versions of the supplied sheets.
 (function () {
   const SERIES = {
-    jjk: { name: "Jujutsu Kaisen", src: "assets/characters/jujutsu-kaisen.jpeg" },
-    aot: { name: "Attack on Titan", src: "assets/characters/attack-on-titan.jpeg" },
-    naruto: { name: "Naruto", src: "assets/characters/naruto.jpeg" },
+    jjk: { name: "Jujutsu Kaisen", src: "assets/characters/jujutsu-kaisen-transparent.png", size: [720, 948] },
+    aot: { name: "Attack on Titan", src: "assets/characters/attack-on-titan-transparent.png", size: [720, 707] },
+    naruto: { name: "Naruto", src: "assets/characters/naruto-transparent.png", size: [720, 941] },
   };
   const SPRITES = {};
   function add(key, name, series, crop, variant = "") {
@@ -58,22 +58,24 @@
     requests.set(canvas, request);
     canvas.width = canvas.height = 32 * scale;
     const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.dataset.loaded = "false";
     return load(sprite.series).then((image) => {
       if (requests.get(canvas) !== request) return;
       const [x, y, width, height] = sprite.crop;
+      const [sheetWidth, sheetHeight] = SERIES[sprite.series].size;
+      const sx = image.naturalWidth / sheetWidth;
+      const sy = image.naturalHeight / sheetHeight;
       const fit = (canvas.height - 12) / Math.max(width, height);
       const dw = width * fit, dh = height * fit;
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(image, x, y, width, height,
+      ctx.drawImage(image, x * sx, y * sy, width * sx, height * sy,
         (canvas.width - dw) / 2, (canvas.height - dh) / 2, dw, dh);
       canvas.dataset.loaded = "true";
     }).catch(() => {
       if (requests.get(canvas) !== request) return;
       canvas.dataset.loaded = "error";
-      ctx.fillStyle = "#1a1420";
+      ctx.fillStyle = "#d8dcec";
       ctx.font = `${Math.max(10, scale * 3)}px sans-serif`;
       ctx.textAlign = "center";
       ctx.fillText(sprite.name, canvas.width / 2, canvas.height / 2);
