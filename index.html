@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AnimePix Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+  <div class="window">
+    <header class="titlebar">
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="title">my-vibe-app — Source Control</span>
+    </header>
+
+    <div class="main">
+      <nav class="activity" aria-label="Activity bar">
+        <span class="act" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 3h9l5 5v13H5z" /></svg></span>
+        <span class="act" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="M16 16l5 5" /></svg></span>
+        <span class="act on" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="6" cy="5" r="2.5" /><circle cx="6" cy="19" r="2.5" /><circle cx="18" cy="9" r="2.5" /><path d="M6 7.5v9M18 11.5c0 4-6 3-12 5" /></svg>
+          <b class="badge" id="activity-badge"></b>
+        </span>
+      </nav>
+
+      <aside class="sidebar">
+        <div class="side-head">SOURCE CONTROL</div>
+
+        <div class="seg" role="group" aria-label="Demo scenario">
+          <button type="button" data-sc="small">Tiny fix</button>
+          <button type="button" data-sc="huge">Huge vibe commit</button>
+        </div>
+
+        <div class="commit-box">
+          <label class="sr-only" for="msg">Commit message</label>
+          <textarea id="msg" rows="2" placeholder="Message (⌘↵ to commit on 'main')"></textarea>
+          <button type="button" id="commit" class="commit-btn">✓ Commit</button>
+          <div class="sum" id="sum"></div>
+        </div>
+
+        <div class="section-label">Changes <span class="count" id="count"></span></div>
+        <ul class="files" id="files"></ul>
+
+        <div class="buddy-panel">
+          <div class="section-label">AnimePix buddy</div>
+          <div class="picker" id="picker"></div>
+          <button type="button" class="ghost" id="preview">▶ Preview pop-up</button>
+        </div>
+      </aside>
+
+      <section class="editor" id="editor" aria-label="Editor">
+        <div class="tabs"><span class="tab"><i class="tab-ico">TS</i><span id="tab-name"></span> <small>(Working Tree)</small></span></div>
+        <div class="crumbs" id="crumbs"></div>
+        <div class="diff" id="diff"></div>
+        <div class="toasts" id="toasts"></div>
+      </section>
+    </div>
+
+    <footer class="statusbar">
+      <span>⎇ main*</span>
+      <span>⟳ 0↓ 0↑</span>
+      <span class="spacer"></span>
+      <span id="status-buddy"></span>
+    </footer>
+  </div>
+
+  <script src="src/sprites.js"></script>
+  <script src="src/buddy.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>
