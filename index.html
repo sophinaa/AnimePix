@@ -45,8 +45,11 @@
         <ul class="files" id="files"></ul>
 
         <div class="buddy-panel">
-          <div class="section-label">AnimePix buddy</div>
-          <div class="picker" id="picker"></div>
+          <div class="section-label">Choose your character <span class="count">21</span></div>
+          <label class="sr-only" for="buddy-series">Anime series</label>
+          <select id="buddy-series" class="buddy-series"></select>
+          <div class="picker" id="picker" role="group" aria-label="Characters"></div>
+          <p class="selected-buddy">Watching your code: <b id="selected-buddy" aria-live="polite"></b></p>
           <button type="button" class="ghost" id="preview">▶ Preview pop-up</button>
         </div>
       </aside>

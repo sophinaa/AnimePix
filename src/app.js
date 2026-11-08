@@ -2,7 +2,7 @@
 // Everything in this file is placeholder for what the backend will provide.
 
 (function () {
-  const { SPRITES, draw } = window.AnimePixSprites;
+  const { SPRITES, SERIES, DEFAULT_CHARACTER, draw } = window.AnimePixSprites;
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const RISK_THRESHOLD = 60;
@@ -152,26 +152,37 @@
   }
 
   // ---- buddy picker ----
-  let saved = "mochi";
-  try { saved = localStorage.getItem("animepix.buddy") || "mochi"; } catch (_) {}
-  if (!SPRITES[saved]) saved = "mochi";
+  let saved = DEFAULT_CHARACTER;
+  try { saved = localStorage.getItem("animepix.buddy") || DEFAULT_CHARACTER; } catch (_) {}
+  if (!Object.hasOwn(SPRITES, saved)) saved = DEFAULT_CHARACTER;
 
   const buddy = new window.AnimePixBuddy($("#editor"));
 
   const picker = $("#picker");
+  const series = $("#buddy-series");
+  series.innerHTML = Object.entries(SERIES).map(([key, value]) =>
+    `<option value="${key}">${value.name}</option>`).join("");
+  series.value = SPRITES[saved].series;
   picker.innerHTML = Object.entries(SPRITES).map(([k, s]) =>
-    `<button type="button" class="pick" data-k="${k}" aria-pressed="false">
-       <canvas aria-hidden="true"></canvas><span><b>${s.name}</b><small>${s.blurb}</small></span>
+    `<button type="button" class="pick" data-k="${k}" data-series="${s.series}" aria-pressed="false" aria-label="${s.name}, ${s.blurb}">
+       <canvas aria-hidden="true"></canvas><span><b>${s.name}</b>${s.variant ? `<small>${s.variant}</small>` : ""}</span>
      </button>`).join("");
   picker.querySelectorAll(".pick").forEach((b) => {
-    draw(b.querySelector("canvas"), b.dataset.k, "neutral", 2);
+    draw(b.querySelector("canvas"), b.dataset.k, "neutral", 4);
     b.addEventListener("click", () => selectBuddy(b.dataset.k));
   });
+  function filterSeries() {
+    picker.querySelectorAll(".pick").forEach((b) => { b.hidden = b.dataset.series !== series.value; });
+    picker.scrollTop = 0;
+  }
+  series.addEventListener("change", filterSeries);
+  filterSeries();
 
   function selectBuddy(k) {
     buddy.setCharacter(k);
     picker.querySelectorAll(".pick").forEach((b) => b.setAttribute("aria-pressed", b.dataset.k === k));
     $("#status-buddy").textContent = `AnimePix: ${SPRITES[k].name} is watching`;
+    $("#selected-buddy").textContent = `${SPRITES[k].name}${SPRITES[k].variant ? ` · ${SPRITES[k].variant}` : ""}`;
     try { localStorage.setItem("animepix.buddy", k); } catch (_) {}
   }
   selectBuddy(saved);

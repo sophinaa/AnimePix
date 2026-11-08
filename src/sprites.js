@@ -1,153 +1,84 @@
-// AnimePix buddy sprites — original chibi pixel characters.
-//
-// Legend:
-//   H hair   h hair shade   S skin   B blush   K mouth/line   M open mouth
-//   E eye (dark top)   e eye (iris)   w eye highlight   G glasses frame
-//   A accent (clip / collar)   C clothes   c clothes shade   L legs
-// The black outline ("O") is generated automatically around the silhouette.
-
+// Character atlas: display regions from the supplied sheets without changing the artwork.
 (function () {
-  const BASE = {
-    O: "#1a1420", K: "#1a1420", M: "#d9576f", E: "#24182b", w: "#ffffff",
-    S: "#ffe6d6", B: "#ffa3b5", L: "#23263a",
+  const SERIES = {
+    jjk: { name: "Jujutsu Kaisen", src: "assets/characters/jujutsu-kaisen.jpeg" },
+    aot: { name: "Attack on Titan", src: "assets/characters/attack-on-titan.jpeg" },
+    naruto: { name: "Naruto", src: "assets/characters/naruto.jpeg" },
   };
-
-  const SPRITES = {
-    mochi: {
-      name: "Mochi",
-      blurb: "Worrier. Reads every diff.",
-      palette: { H: "#f4a7b9", h: "#e5869f", e: "#c0587a", A: "#e5484d", C: "#3b3f5c", c: "#2c2f45" },
-      rows: [
-        "........HHHHHH........",
-        "......HHHHHHHHHH......",
-        ".....HHHHhhHHHHHH.....",
-        "....HHHhhHHHHHHHHH....",
-        "...HHHHHHHHHHHHHhHH...",
-        "...HHHHHHHHHHHHHHAA...",
-        "..HHHHHHHHHHHHHHHHAH..",
-        "..HHHHHHHHHHHHHHHHHH..",
-        "..HHHHSHHHSSHHHSHHHH..",
-        "..HHHSSSSSSSSSSSSHHH..",
-        "..HHSSEESSSSSSEESSHH..",
-        "..HHSSEwSSSSSSEwSSHH..",
-        "..HHSBeeSSSSSSeeBSHH..",
-        "..HHHSSSSSKKSSSSSHHH..",
-        "...HHHSSSSSSSSSSHHH...",
-        ".....HHCCCAACCCHH.....",
-        ".....CCCCCAACCCCC.....",
-        "....SCCCCCAACCCCCS....",
-        ".....cCCCCCCCCCCc.....",
-        "......CCCCCCCCCC......",
-        ".......LLL..LLL.......",
-        ".......LLL..LLL.......",
-      ],
-    },
-    ren: {
-      name: "Ren",
-      blurb: "Strict. Has opinions about tests.",
-      palette: { H: "#2b3352", h: "#40507f", e: "#6aa8ff", G: "#3a2f4a", A: "#cfd6ee", C: "#5b6b8c", c: "#46546f" },
-      rows: [
-        "......H.....H.........",
-        "......HH...HH...H.....",
-        ".....HHHHHHHHHHHH.....",
-        "....HHHHHHHHHHHHHH....",
-        "..HHHHHHHHHhHHHHHHHH..",
-        "...HHHHhHHHHHHHHHHHH..",
-        ".HHHHHHHHHHHHHHHHHHHH.",
-        "..HHHHHHHHHHHHHHHHHHH.",
-        "..HHHHHHHHHHHHHHHHHH..",
-        "..HHHHSHHSSSHHHSSHHH..",
-        "..HHSSSSSSSSSSSSSSHH..",
-        "..HHSGGGGGGGGGGGGSHH..",
-        "..HHSGEwGSSSSGEwGSHH..",
-        "..HHSGeeGSSSSGeeGSHH..",
-        "..HHSGGGGSSSSGGGGSHH..",
-        "...HHHBSSSKKSSSBHHH...",
-        ".....HHCCCAACCCHH.....",
-        ".....CCCCCAACCCCC.....",
-        "....SCCCCCAACCCCCS....",
-        ".....cCCCCCCCCCCc.....",
-        "......CCCCCCCCCC......",
-        ".......LLL..LLL.......",
-        ".......LLL..LLL.......",
-      ],
-    },
-    sunny: {
-      name: "Sunny",
-      blurb: "Cheerful. Still won't let you push to main.",
-      palette: { H: "#f6cf5b", h: "#e0ac34", e: "#3f9e7a", A: "#ff7a59", C: "#eef0f7", c: "#c9cde0" },
-      rows: [
-        "..........HH..........",
-        "...........H..........",
-        "......HHHHHHHHHH......",
-        ".....HHHHHHHHHHHH.....",
-        "....HHhHHHHHHHHHHH....",
-        "...HHHHhHHHHHHHHHAH...",
-        "...HHHHHHHHHHHHHAAA...",
-        "..HHHHHHHHHHHHHHHHAH..",
-        "..HHHHHHHHHHHHHHHHHH..",
-        "..HHHSHHHHSSHHHHSHHH..",
-        "..HHSSSSSSSSSSSSSSHH..",
-        "..HHSSEESSSSSSEESSHH..",
-        "..HHSSEwSSSSSSEwSSHH..",
-        "..HHSBeeSSSSSSeeBSHH..",
-        "..HHSSSSSSKKSSSSSSHH..",
-        "....HHSSSSSSSSSSHH....",
-        "......CCCCAACCCC......",
-        ".....CCCCCAACCCCC.....",
-        "....SCCCCCAACCCCCS....",
-        ".....cCCCCCCCCCCc.....",
-        "......CCCCCCCCCC......",
-        ".......LLL..LLL.......",
-        ".......LLL..LLL.......",
-      ],
-    },
-  };
-
-  // Pad by one pixel and wrap the silhouette in an outline.
-  function buildGrid(rows) {
-    const w = rows[0].length + 2;
-    const blank = ".".repeat(w);
-    const g = [blank, ...rows.map((r) => "." + r + "."), blank].map((r) => r.split(""));
-    const filled = (y, x) => g[y] && g[y][x] && g[y][x] !== "." && g[y][x] !== "O";
-    const out = g.map((r) => r.slice());
-    for (let y = 0; y < g.length; y++)
-      for (let x = 0; x < w; x++)
-        if (g[y][x] === "." && (filled(y - 1, x) || filled(y + 1, x) || filled(y, x - 1) || filled(y, x + 1)))
-          out[y][x] = "O";
-    return out;
+  const SPRITES = {};
+  function add(key, name, series, crop, variant = "") {
+    SPRITES[key] = { name, series, crop, variant, blurb: variant || SERIES[series].name };
   }
-  Object.values(SPRITES).forEach((s) => (s.grid = buildGrid(s.rows)));
 
-  // Moods: neutral | blink | happy | shock | pout
-  function moodPixel(ch, mood) {
-    const closed = mood === "blink" || mood === "happy";
-    if (closed) {
-      if (ch === "E" || ch === "w") return "S";
-      if (ch === "e") return "E";
+  add("gojo", "Gojo", "jjk", [90, 38, 255, 280]);
+  add("yuta", "Yuta", "jjk", [375, 30, 235, 290]);
+  add("megumi", "Megumi", "jjk", [80, 330, 265, 280]);
+  add("nobara", "Nobara", "jjk", [375, 335, 240, 275]);
+  add("yuji", "Yuji", "jjk", [80, 610, 265, 280]);
+  add("toge", "Toge", "jjk", [370, 615, 245, 280]);
+
+  const titanNames = ["Eren", "Mikasa", "Armin"];
+  const titanKeys = ["eren", "mikasa", "armin"];
+  const titanLooks = ["Cadet", "Season 4", "Scout"];
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      add(`${titanKeys[col]}-${row + 1}`, titanNames[col], "aot",
+        [35 + col * 240, 8 + row * 238, 180, 216], titanLooks[row]);
     }
-    if (mood === "pout" && (ch === "w" || ch === "e")) return "E";
-    if ((mood === "happy" || mood === "shock") && ch === "K") return "M";
-    return ch;
   }
 
+  add("naruto", "Naruto", "naruto", [88, 48, 265, 275]);
+  add("sakura", "Sakura", "naruto", [355, 68, 245, 255]);
+  add("sasuke", "Sasuke", "naruto", [88, 330, 250, 270]);
+  add("kakashi", "Kakashi", "naruto", [355, 335, 250, 270]);
+  add("obito", "Obito", "naruto", [88, 605, 250, 265]);
+  add("itachi", "Itachi", "naruto", [350, 610, 235, 265]);
+
+  const DEFAULT_CHARACTER = "gojo";
+  const images = new Map();
+  const requests = new WeakMap();
+  function load(series) {
+    if (!images.has(series)) {
+      const image = new Image();
+      const ready = new Promise((resolve, reject) => {
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error(`Unable to load ${SERIES[series].name} artwork`));
+      });
+      image.src = SERIES[series].src;
+      images.set(series, ready);
+    }
+    return images.get(series);
+  }
+
+  // Keep the existing renderer contract for the popup. Mood is conveyed through
+  // its animation and dialogue; the supplied character art stays intact.
   function draw(canvas, key, mood = "neutral", scale = 5) {
-    const s = SPRITES[key];
-    const pal = { ...BASE, ...s.palette };
-    const grid = s.grid;
-    canvas.width = grid[0].length * scale;
-    canvas.height = grid.length * scale;
+    const sprite = SPRITES[key] || SPRITES[DEFAULT_CHARACTER];
+    const request = {};
+    requests.set(canvas, request);
+    canvas.width = canvas.height = 32 * scale;
     const ctx = canvas.getContext("2d");
-    ctx.imageSmoothingEnabled = false;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let y = 0; y < grid.length; y++)
-      for (let x = 0; x < grid[y].length; x++) {
-        const ch = moodPixel(grid[y][x], mood);
-        if (ch === ".") continue;
-        ctx.fillStyle = pal[ch] || "#ff00ff";
-        ctx.fillRect(x * scale, y * scale, scale, scale);
-      }
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    canvas.dataset.loaded = "false";
+    return load(sprite.series).then((image) => {
+      if (requests.get(canvas) !== request) return;
+      const [x, y, width, height] = sprite.crop;
+      const fit = (canvas.height - 12) / Math.max(width, height);
+      const dw = width * fit, dh = height * fit;
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(image, x, y, width, height,
+        (canvas.width - dw) / 2, (canvas.height - dh) / 2, dw, dh);
+      canvas.dataset.loaded = "true";
+    }).catch(() => {
+      if (requests.get(canvas) !== request) return;
+      canvas.dataset.loaded = "error";
+      ctx.fillStyle = "#1a1420";
+      ctx.font = `${Math.max(10, scale * 3)}px sans-serif`;
+      ctx.textAlign = "center";
+      ctx.fillText(sprite.name, canvas.width / 2, canvas.height / 2);
+    });
   }
 
-  window.AnimePixSprites = { SPRITES, draw };
+  window.AnimePixSprites = { SPRITES, SERIES, DEFAULT_CHARACTER, draw };
 })();

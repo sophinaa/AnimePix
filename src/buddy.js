@@ -9,7 +9,7 @@
 //   result = { action: "commit", note } | { action: "review" } | { action: "force" }
 
 (function () {
-  const { SPRITES, draw } = window.AnimePixSprites;
+  const { SPRITES, DEFAULT_CHARACTER, draw } = window.AnimePixSprites;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const el = (html) => {
     const t = document.createElement("template");
@@ -21,7 +21,7 @@
 
   class Buddy {
     constructor(host) {
-      this.character = "mochi";
+      this.character = DEFAULT_CHARACTER;
       this.mood = "neutral";
       this.root = el(`
         <div class="buddy" data-state="hidden" role="dialog" aria-modal="false" aria-labelledby="buddy-title">
@@ -36,6 +36,7 @@
           <div class="buddy-figure">
             <span class="buddy-alert" aria-hidden="true">!</span>
             <canvas class="buddy-sprite" aria-hidden="true"></canvas>
+            <span class="buddy-name"></span>
           </div>
         </div>`);
       host.appendChild(this.root);
@@ -46,26 +47,17 @@
       this.root.querySelector(".bubble-x").addEventListener("click", () => this._decide("review"));
       this.root.addEventListener("keydown", (e) => e.key === "Escape" && this._decide("review"));
       this.render();
-      this._blink();
     }
 
     get name() { return SPRITES[this.character].name; }
 
-    setCharacter(key) { this.character = key; this.render(); }
+    setCharacter(key) { this.character = Object.hasOwn(SPRITES, key) ? key : DEFAULT_CHARACTER; this.render(); }
 
     setMood(m) { this.mood = m; this.root.dataset.mood = m; this.render(); }
 
-    render() { draw(this.canvas, this.character, this.mood, 5); }
-
-    _blink() {
-      const loop = () => {
-        if (this.mood === "neutral" && this.root.dataset.state === "open") {
-          draw(this.canvas, this.character, "blink", 5);
-          setTimeout(() => this.mood === "neutral" && this.render(), 130);
-        }
-        setTimeout(loop, 2200 + Math.random() * 2600);
-      };
-      setTimeout(loop, 2000);
+    render() {
+      draw(this.canvas, this.character, this.mood, 5);
+      this.root.querySelector(".buddy-name").textContent = this.name;
     }
 
     async _type(text) {
@@ -96,7 +88,8 @@
         });
         const n = (x) => x.toLocaleString();
         setTimeout(async () => {
-          await this._type(
+          const s = SPRITES[this.character];
+          await this._type(s.ask ? s.ask(info) :
             `${info.files} files, +${n(info.additions)} / −${n(info.deletions)} lines… ` +
             `that's a lot! What are you committing?`
           );
@@ -141,7 +134,7 @@
         return this._finish("Got it!", "Committing with your note. Good luck~ ✿", "happy", { action: "commit", note });
       }
       if (act === "skip")
-        return this._finish("…okay.", "Don't say I didn't warn you. Hmph.", "pout", { action: "force" });
+        return this._finish("…okay.", SPRITES[this.character].skip || "Don't say I didn't warn you. Hmph.", "pout", { action: "force" });
       return this._finish("Good call!", "Take your time. I'll be right here.", "happy", { action: "review" });
     }
 
